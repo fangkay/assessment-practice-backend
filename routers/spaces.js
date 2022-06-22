@@ -13,9 +13,10 @@ spacesRouter.get("/", async (request, response, next) => {
   }
 });
 
-spacesRouter.get("/details", async (request, response, next) => {
+spacesRouter.get("/details/:id", async (request, response, next) => {
   try {
-    const getSpacesDetails = await Space.findAll({ include: Story });
+    const id = parseInt(request.params.id);
+    const getSpacesDetails = await Space.findByPk(id, { include: Story });
     response.send(getSpacesDetails);
   } catch (e) {
     console.log(e.message);
