@@ -12,4 +12,14 @@ spacesRouter.get("/", async (request, response, next) => {
   }
 });
 
+spacesRouter.get("/details", async (request, response, next) => {
+  try {
+    const getSpacesDetails = await Space.findAll();
+    response.send(getSpacesDetails);
+  } catch (e) {
+    console.log(e.message);
+    next(e);
+  }
+});
+
 module.exports = spacesRouter;
