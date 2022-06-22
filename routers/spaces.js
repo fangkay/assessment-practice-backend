@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const Space = require("../models").space;
+const Story = require("../models").story;
 const spacesRouter = new Router();
 
 spacesRouter.get("/", async (request, response, next) => {
@@ -14,7 +15,7 @@ spacesRouter.get("/", async (request, response, next) => {
 
 spacesRouter.get("/details", async (request, response, next) => {
   try {
-    const getSpacesDetails = await Space.findAll();
+    const getSpacesDetails = await Space.findAll({ include: Story });
     response.send(getSpacesDetails);
   } catch (e) {
     console.log(e.message);
