@@ -8,6 +8,8 @@ module.exports = {
         model: "spaces",
         key: "id",
       },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
     });
   },
 
