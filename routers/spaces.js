@@ -24,4 +24,21 @@ spacesRouter.get("/details/:id", async (request, response, next) => {
   }
 });
 
+spacesRouter.delete("/:storyId", async (request, response, next) => {
+  try {
+    const storyId = parseInt(request.params.storyId);
+    const findStory = await Story.findByPk(storyId);
+
+    if (!storyId) {
+      return response.status(404).send("Story not found");
+    }
+
+    await findStory.destroy();
+    return response.status(204).send("Story deleted");
+  } catch (e) {
+    console.log(e.message, error);
+    next(e);
+  }
+});
+
 module.exports = spacesRouter;

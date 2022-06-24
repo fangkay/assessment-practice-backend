@@ -3,6 +3,8 @@ const { Router } = require("express");
 const { toJWT } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
+const Space = require("../models").space;
+const Story = require("../models").story;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -25,9 +27,16 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
+    const userSpace = await Space.findOne({
+      where: { userId: user.id },
+      include: [Story],
+    });
+
     delete user.dataValues["password"]; // don't send back the password hash
     const token = toJWT({ userId: user.id });
-    return res.status(200).send({ token, user: user.dataValues });
+    return res
+      .status(200)
+      .send({ token, user: user.dataValues, space: userSpace });
   } catch (error) {
     console.log(error);
     return res.status(400).send({ message: "Something went wrong, sorry" });
@@ -49,9 +58,21 @@ router.post("/signup", async (req, res) => {
 
     delete newUser.dataValues["password"]; // don't send back the password hash
 
+    const newSpace = await Space.create({
+      title: `${newUser.name} space`,
+      description: null,
+      backgroundColor: "#fff",
+      color: "#191919",
+      userId: newUser.id,
+    });
+
+    const fullSpace = await Space.findByPk(newSpace.id, {
+      include: [Story],
+    });
+
     const token = toJWT({ userId: newUser.id });
 
-    res.status(201).json({ token, user: newUser.dataValues });
+    res.status(201).json({ token, user: newUser.dataValues, space: fullSpace });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
       return res
@@ -68,8 +89,18 @@ router.post("/signup", async (req, res) => {
 // - checking if a token is (still) valid
 router.get("/me", authMiddleware, async (req, res) => {
   // don't send back the password hash
+
+  // find space of this user (with stories)
+  // include in the response
+
   delete req.user.dataValues["password"];
-  res.status(200).send({ ...req.user.dataValues });
+
+  const userSpace = await Space.findOne({
+    where: { userId: req.user.id },
+    include: [Story],
+  });
+
+  res.status(200).send({ user: req.user, space: userSpace });
 });
 
 module.exports = router;
