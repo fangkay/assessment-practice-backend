@@ -103,4 +103,26 @@ router.get("/me", authMiddleware, async (req, res) => {
   res.status(200).send({ user: req.user, space: userSpace });
 });
 
+router.post("/me/:spaceId", authMiddleware, async (req, res) => {
+  const spaceId = parseInt(req.params.spaceId);
+  const { name, content, imageUrl } = req.body;
+  try {
+    const newStory = await Story.create({
+      name,
+      content,
+      imageUrl,
+      spaceId,
+    });
+    const userSpace = await Space.findOne({
+      where: { userId: req.user.id },
+      include: [Story],
+    });
+
+    res.status(200).send({ user: req.user, space: userSpace });
+    // res.status(201).send("Successfully submitted");
+  } catch (e) {
+    console.log(e.message);
+  }
+});
+
 module.exports = router;
