@@ -125,4 +125,20 @@ router.post("/me/:spaceId", authMiddleware, async (req, res) => {
   }
 });
 
+router.put("/space/:spaceId", authMiddleware, async (req, res) => {
+  const space = parseInt(req.params.spaceId);
+  const mySpace = await findByPk({ where: { spaceId: space } });
+  const { backgroundColor, color, title, description } = req.body;
+  try {
+    const updateSpace = await mySpace.update({
+      backgroundColor,
+      color,
+      title,
+      description,
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
+});
+
 module.exports = router;
