@@ -1,10 +1,12 @@
 const bcrypt = require("bcrypt");
+const e = require("express");
 const { Router } = require("express");
 const { toJWT } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
 const Space = require("../models").space;
 const Story = require("../models").story;
+const Favorite = require("../models").favorite;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -104,9 +106,9 @@ router.get("/me", authMiddleware, async (req, res) => {
 });
 
 router.post("/me/:spaceId", authMiddleware, async (req, res) => {
-  const spaceId = parseInt(req.params.spaceId);
-  const { name, content, imageUrl } = req.body;
   try {
+    const spaceId = parseInt(req.params.spaceId);
+    const { name, content, imageUrl } = req.body;
     const newStory = await Story.create({
       name,
       content,
@@ -125,20 +127,5 @@ router.post("/me/:spaceId", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/space/:spaceId", authMiddleware, async (req, res) => {
-  const space = parseInt(req.params.spaceId);
-  const mySpace = await findByPk({ where: { spaceId: space } });
-  const { backgroundColor, color, title, description } = req.body;
-  try {
-    const updateSpace = await mySpace.update({
-      backgroundColor,
-      color,
-      title,
-      description,
-    });
-  } catch (e) {
-    console.log(e.message);
-  }
-});
-
+// http -v POST :4000/space/me/favorites userId=1 storyId=1 Authorization:"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY1NjE2NjE2NywiZXhwIjoxNjU2MTczMzY3fQ.mpYmekHhkZfSqnaRJ3TVHlXVqGTw4gmTdz_h-645r98"
 module.exports = router;

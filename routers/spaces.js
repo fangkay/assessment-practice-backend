@@ -3,6 +3,7 @@ const Space = require("../models").space;
 const Story = require("../models").story;
 const spacesRouter = new Router();
 const authMiddleware = require("../auth/middleware");
+const Favorite = require("../models").favorite;
 
 spacesRouter.get("/", async (request, response, next) => {
   try {
@@ -56,6 +57,23 @@ spacesRouter.put("/:spaceId", authMiddleware, async (req, res) => {
       description,
     });
     res.send(updateSpace);
+  } catch (e) {
+    console.log(e.message);
+  }
+});
+
+spacesRouter.put("/me/favorites", async (req, res) => {
+  try {
+    // const { userId, storyId } = Number(req.body);
+    const userId = req.body.userId;
+    const storyId = req.body.storyId;
+    const newFavorite = await Favorite.update({
+      id,
+      userId,
+      storyId,
+    });
+    console.log("hello from the other side");
+    res.send(newFavorite);
   } catch (e) {
     console.log(e.message);
   }
